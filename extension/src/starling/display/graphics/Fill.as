@@ -29,8 +29,8 @@ package starling.display.graphics
 			vertices = new Vector.<Number>();
 			if(minBounds)
 			{
-				minBounds.x = minBounds.y = 0; 
-				maxBounds.x = maxBounds.y = 0;
+				minBounds.x = minBounds.y = Number.POSITIVE_INFINITY; 
+				maxBounds.x = maxBounds.y = Number.NEGATIVE_INFINITY;
 			}
 			
 			_numVertices = 0;
@@ -103,6 +103,10 @@ package starling.display.graphics
 			{
 				maxBounds.y = y;
 			}
+			if ( maxBounds.x == Number.NEGATIVE_INFINITY )
+				maxBounds.x = x;
+			if ( maxBounds.y == Number.NEGATIVE_INFINITY )	
+				maxBounds.y = y;
 			
 			_numVertices++;
 			
@@ -134,13 +138,13 @@ package starling.display.graphics
 		}
 		
 		override protected function shapeHitTestLocalInternal( localX:Number, localY:Number ):Boolean
-		{ // This method differs from shapeHitTest - the isClockWise test is compared with false rather than true. Not sure why, but this yields the correct result for me.
+		{ // This method differs from shapeHitTest - This seems to yield better results for complex shapes.
 			var wn:int = windingNumberAroundPoint(fillVertices, localX, localY);
-			if ( isClockWise(fillVertices) == false )
+			if ( isClockWise(fillVertices) )
 			{
-				return  wn != 0;
+				return  wn < 0;
 			}
-			return wn == 0;
+			return wn > 0;
 		}
 		/**
 		 * Takes a list of arbitrary vertices. It will first decompose this list into

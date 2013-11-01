@@ -10,10 +10,7 @@ package starling.display
 	import starling.display.graphics.RoundedRectangle;
 	import starling.display.graphics.Stroke;
 	import starling.display.graphics.StrokeVertex;
-	import starling.display.GraphicsPath;
-	import starling.display.GraphicsPathCommands;
-	import starling.display.IGraphicsData;
-	
+
 	import starling.display.materials.IMaterial;
 	import starling.display.shaders.fragment.TextureFragmentShader;
 	import starling.display.util.CurveUtil;
@@ -417,7 +414,7 @@ package starling.display
 				_strokeInterrupted  = false;
 			}
 			
-			if ( isNaN(_currentX) )
+			if ( (_currentX != _currentX) ) // Check for isNan, but faster
 			{
 				moveTo(0,0);
 			}
@@ -431,12 +428,14 @@ package starling.display
 			{
 				_currentFill.addVertex( x, y );
 			}
+			
 			_currentX = x;
 			_currentY = y;
 		}
 		
 		public function curveTo(cx:Number, cy:Number, a2x:Number, a2y:Number, error:Number = BEZIER_ERROR ):void
 		{
+			
 			var startX:Number = _currentX;
 			var startY:Number = _currentY;
 			
@@ -454,12 +453,14 @@ package starling.display
                 var x:Number = points[i];
                 var y:Number = points[i+1];
 
-                if ( i == 0 && isNaN(_currentX) )
+                if ( i == 0 && (_currentX!=_currentX) ) // Faster check then isNan(_currentX)
                 {
                     moveTo( x, y );
                 }
                 else
                 {
+					if ( i == 0 && _currentStroke == null )
+						lineTo(startX, startY);
                     lineTo( x, y );
                 }
             }
@@ -555,33 +556,7 @@ package starling.display
 		}
 		
 		
-		public function drawGraphicsData(graphicsData:Vector.<IGraphicsData>):void
-		{
-			var i:int = 0;
-			var vectorLength:int = graphicsData.length;
-			for ( i = 0; i < vectorLength; i++ )
-			{
-				var gfxData:IGraphicsData = graphicsData[i];
-				handleGraphicsDataType(gfxData);
-			}
-		}
-		
-		protected function handleGraphicsDataType(gfxData:IGraphicsData ) : void
-		{
-			if ( gfxData is GraphicsPath ) 
-				drawPath(GraphicsPath(gfxData).commands, GraphicsPath(gfxData).data, GraphicsPath(gfxData).winding);
-			else if ( gfxData is GraphicsEndFill )
-				endFill();
-			else if ( gfxData is GraphicsTextureFill )
-				beginTextureFill(GraphicsTextureFill(gfxData).texture, GraphicsTextureFill(gfxData).matrix);
-			else if ( gfxData is GraphicsBitmapFill )
-				beginBitmapFill(GraphicsBitmapFill(gfxData).bitmapData, GraphicsBitmapFill(gfxData).matrix);
-			else if ( gfxData is GraphicsMaterialFill ) 
-				beginMaterialFill(GraphicsMaterialFill(gfxData).material, GraphicsMaterialFill(gfxData).matrix);
-			else if ( gfxData is GraphicsLine )
-				lineStyle(GraphicsLine(gfxData).thickness, GraphicsLine(gfxData).color, GraphicsLine(gfxData).alpha); // This isn't part of the proper Flash API. 
-			
-		}
+
 		
 		public function set precisionHitTest(value:Boolean) : void
 		{

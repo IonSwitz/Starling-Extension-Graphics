@@ -69,21 +69,31 @@ package starling.display.graphics
 		{
 			var u:Number = 0;
 			var textures:Vector.<Texture> = _material.textures;
-			if ( _line.length > 0 && textures.length > 0 )
+			const inv255:Number = 1.0 / 255.0;
+			
+			if ( _line.length > 0 )
 			{
 				var prevVertex:StrokeVertex = _line[_line.length - 1];
 				var dx:Number = x - prevVertex.x;
 				var dy:Number = y - prevVertex.y;
-				var d:Number = Math.sqrt(dx*dx+dy*dy);
-				u = prevVertex.u + (d / textures[0].width);
+				
+				if ( dx == 0 && dy == 0)
+				{
+					return;
+				}
+				if ( textures.length > 0 )	
+				{
+					var d:Number = Math.sqrt(dx * dx + dy * dy);
+					u = prevVertex.u + (d / textures[0].width);
+				}
 			}
 			
-			var r0:Number = (color0 >> 16) / 255;
-			var g0:Number = ((color0 & 0x00FF00) >> 8) / 255;
-			var b0:Number = (color0 & 0x0000FF) / 255;
-			var r1:Number = (color1 >> 16) / 255;
-			var g1:Number = ((color1 & 0x00FF00) >> 8) / 255;
-			var b1:Number = (color1 & 0x0000FF) / 255;
+			var r0:Number = (color0 >> 16) * inv255;
+			var g0:Number = ((color0 & 0x00FF00) >> 8)  * inv255;
+			var b0:Number = (color0 & 0x0000FF)  * inv255;
+			var r1:Number = (color1 >> 16)  * inv255;
+			var g1:Number = ((color1 & 0x00FF00) >> 8)  * inv255;
+			var b1:Number = (color1 & 0x0000FF)  * inv255;
 			
 			var v:StrokeVertex = _line[_numVertices] = StrokeVertex.getInstance();
 			v.x = x;
@@ -130,7 +140,7 @@ package starling.display.graphics
 		
 		override protected function buildGeometry():void
 		{
-			//buildGeometryOriginal();
+		//	buildGeometryOriginal();
 			 buildGeometryPreAllocatedVectors();
 		}
 		
@@ -255,7 +265,7 @@ package starling.display.graphics
 						elbowThickness = v1.thickness * 4;
 					}
 					
-					if ( isNaN( elbowThickness ) )
+					if ( ( elbowThickness != elbowThickness  ) ) // Faster IsNaN test
 					{
 						elbowThickness = v1.thickness*0.5;
 					}

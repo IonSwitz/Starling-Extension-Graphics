@@ -4,7 +4,14 @@ package starling.display.graphicsEx
 	import starling.display.graphics.Stroke;
 	import starling.display.graphics.StrokeVertex;
 	import starling.display.IGraphicsData;
+	import flash.display.GraphicsPath;
+	import flash.display.IGraphicsData;
+	import flash.display.IGraphicsFill;
+	import flash.display.GraphicsSolidFill;
+	import flash.display.GraphicsPath;
+	
 
+	
 	import starling.display.Graphics;
 	import starling.textures.Texture;
 	import starling.display.materials.IMaterial;
@@ -43,12 +50,68 @@ package starling.display.graphicsEx
 				return 0;
 		}
 		
-		override protected function handleGraphicsDataType(gfxData:IGraphicsData ) : void
+			
+		
+		public function drawGraphicsData(graphicsData:Vector.<flash.display.IGraphicsData>):void
+		{
+			var i:int = 0;
+			var vectorLength:int = graphicsData.length;
+			for ( i = 0; i < vectorLength; i++ )
+			{
+				var gfxData:flash.display.IGraphicsData = graphicsData[i];
+				handleGraphicsDataType(gfxData);
+			}
+		}
+		
+		protected function handleGraphicsDataType(gfxData:flash.display.IGraphicsData ) : void
+		{
+			if ( gfxData is flash.display.GraphicsPath ) 
+				drawPath(flash.display.GraphicsPath(gfxData).commands, flash.display.GraphicsPath(gfxData).data, flash.display.GraphicsPath(gfxData).winding);
+			else if ( gfxData is flash.display.GraphicsEndFill )
+				endFill();
+			else if ( gfxData is flash.display.GraphicsBitmapFill )
+				beginBitmapFill(flash.display.GraphicsBitmapFill(gfxData).bitmapData, flash.display.GraphicsBitmapFill(gfxData).matrix);
+			else if ( gfxData is flash.display.GraphicsSolidFill )
+				beginFill(flash.display.GraphicsSolidFill(gfxData).color, flash.display.GraphicsSolidFill(gfxData).alpha );
+			else if ( gfxData is flash.display.GraphicsStroke )
+			{
+				var solidFill:flash.display.GraphicsSolidFill = flash.display.GraphicsStroke(gfxData).fill as flash.display.GraphicsSolidFill;
+				var bitmapFill:flash.display.GraphicsBitmapFill = flash.display.GraphicsStroke(gfxData).fill as flash.display.GraphicsBitmapFill;
+				if (  solidFill != null )
+					lineStyle(flash.display.GraphicsStroke(gfxData).thickness, solidFill.color, solidFill.alpha); 
+				else if ( bitmapFill != null )
+					lineTexture(flash.display.GraphicsStroke(gfxData).thickness, Texture.fromBitmapData( bitmapFill.bitmapData, false ))
+			}
+		}
+		
+		public function drawGraphicsDataEx(graphicsData:Vector.<starling.display.IGraphicsData>):void
+		{
+			var i:int = 0;
+			var vectorLength:int = graphicsData.length;
+			for ( i = 0; i < vectorLength; i++ )
+			{
+				var gfxData:starling.display.IGraphicsData = graphicsData[i];
+				handleGraphicsDataTypeEx(gfxData);
+			}
+		}
+		
+		protected function handleGraphicsDataTypeEx(gfxData:starling.display.IGraphicsData ) : void
 		{
 			if ( gfxData is GraphicsNaturalSpline )
 				naturalCubicSplineTo(GraphicsNaturalSpline(gfxData).controlPoints, GraphicsNaturalSpline(gfxData).closed, GraphicsNaturalSpline(gfxData).steps);
-			else
-				super.handleGraphicsDataType(gfxData);
+			else if ( gfxData is starling.display.GraphicsPath ) 
+				drawPath(starling.display.GraphicsPath(gfxData).commands, starling.display.GraphicsPath(gfxData).data, starling.display.GraphicsPath(gfxData).winding);
+			else if ( gfxData is starling.display.GraphicsEndFill )
+				endFill();
+			else if ( gfxData is starling.display.GraphicsTextureFill )
+				beginTextureFill(starling.display.GraphicsTextureFill(gfxData).texture, starling.display.GraphicsTextureFill(gfxData).matrix);
+			else if ( gfxData is starling.display.GraphicsBitmapFill )
+				beginBitmapFill(starling.display.GraphicsBitmapFill(gfxData).bitmapData, starling.display.GraphicsBitmapFill(gfxData).matrix);
+			else if ( gfxData is starling.display.GraphicsMaterialFill ) 
+				beginMaterialFill(starling.display.GraphicsMaterialFill(gfxData).material, starling.display.GraphicsMaterialFill(gfxData).matrix);
+			else if ( gfxData is starling.display.GraphicsLine )
+				lineStyle(starling.display.GraphicsLine(gfxData).thickness, starling.display.GraphicsLine(gfxData).color, starling.display.GraphicsLine(gfxData).alpha); // This isn't part of the proper Flash API. 
+			
 		}
 		
 		/**
