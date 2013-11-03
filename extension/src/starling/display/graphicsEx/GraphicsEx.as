@@ -8,7 +8,9 @@ package starling.display.graphicsEx
 	import flash.display.IGraphicsData;
 	import flash.display.IGraphicsFill;
 	import flash.display.GraphicsSolidFill;
+	import flash.display.GraphicsGradientFill;
 	import flash.display.GraphicsPath;
+	import starling.textures.GradientTexture;
 	
 
 	
@@ -73,14 +75,26 @@ package starling.display.graphicsEx
 				beginBitmapFill(flash.display.GraphicsBitmapFill(gfxData).bitmapData, flash.display.GraphicsBitmapFill(gfxData).matrix);
 			else if ( gfxData is flash.display.GraphicsSolidFill )
 				beginFill(flash.display.GraphicsSolidFill(gfxData).color, flash.display.GraphicsSolidFill(gfxData).alpha );
+			else if ( gfxData is flash.display.GraphicsGradientFill )
+			{
+				var gradientFill:flash.display.GraphicsGradientFill = gfxData as flash.display.GraphicsGradientFill;
+				var gradTexture:Texture = GradientTexture.create(128, 128, gradientFill.type, gradientFill.colors, gradientFill.alphas, gradientFill.ratios, gradientFill.matrix, gradientFill.spreadMethod, gradientFill.interpolationMethod, gradientFill.focalPointRatio);
+				beginTextureFill(gradTexture);
+			}
 			else if ( gfxData is flash.display.GraphicsStroke )
 			{
 				var solidFill:flash.display.GraphicsSolidFill = flash.display.GraphicsStroke(gfxData).fill as flash.display.GraphicsSolidFill;
 				var bitmapFill:flash.display.GraphicsBitmapFill = flash.display.GraphicsStroke(gfxData).fill as flash.display.GraphicsBitmapFill;
+				var strokeGradientFill:flash.display.GraphicsGradientFill = flash.display.GraphicsStroke(gfxData).fill as flash.display.GraphicsGradientFill;
 				if (  solidFill != null )
 					lineStyle(flash.display.GraphicsStroke(gfxData).thickness, solidFill.color, solidFill.alpha); 
 				else if ( bitmapFill != null )
 					lineTexture(flash.display.GraphicsStroke(gfxData).thickness, Texture.fromBitmapData( bitmapFill.bitmapData, false ))
+				else if ( strokeGradientFill )
+				{
+					var strokeGradTexture:Texture = GradientTexture.create(128, 128, strokeGradientFill.type, strokeGradientFill.colors, strokeGradientFill.alphas, strokeGradientFill.ratios, strokeGradientFill.matrix, strokeGradientFill.spreadMethod, strokeGradientFill.interpolationMethod, strokeGradientFill.focalPointRatio);
+					lineTexture(flash.display.GraphicsStroke(gfxData).thickness, strokeGradTexture);
+				}
 			}
 		}
 		
@@ -113,7 +127,7 @@ package starling.display.graphicsEx
 				lineStyle(starling.display.GraphicsLine(gfxData).thickness, starling.display.GraphicsLine(gfxData).color, starling.display.GraphicsLine(gfxData).alpha); // This isn't part of the proper Flash API. 
 			
 		}
-		
+
 		/**
 		 * performs the natural cubic slipne transformation
 		 * @param	controlPoints a Vector.<Point> of the control points
