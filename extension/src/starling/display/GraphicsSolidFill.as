@@ -4,10 +4,7 @@ package starling.display
 	import starling.display.materials.IMaterial;
 	import flash.geom.Matrix;
 	
-	/**
-	 * ...
-	 * @author Henrik Jonsson
-	 */
+	
 	public class GraphicsSolidFill implements IGraphicsData 
 	{
 		protected var mColor:uint;
